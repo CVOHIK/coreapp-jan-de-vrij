@@ -27,51 +27,11 @@ namespace MusicStore.Areas.Admin.Controllers
         [Route("Admin/Albums")]
         public async Task<IActionResult> Index(int? GenreID, int? ArtistID, string Title = "")
         {
-            var albums = from m in _context.Albums.OrderBy(a => a.Title)
-                         select m;
-
-            if (GenreID == 0)
-            {
-                GenreID = null;
-            }
-
-            if (ArtistID == 0)
-            {
-                ArtistID = null;
-            }
-
-            if (GenreID != null && ArtistID != null && !string.IsNullOrWhiteSpace(Title))
-            {
-                albums = _context.Albums.Where(a => a.GenreID == GenreID).Where(a => a.ArtistID == ArtistID).Where(a => a.Title.Contains(Title)).OrderBy(a => a.Title);
-            }
-            else if (GenreID != null && ArtistID != null)
-            {
-                albums = _context.Albums.Where(a => a.GenreID == GenreID).Where(a => a.ArtistID == ArtistID).OrderBy(a => a.Title);
-            }
-            else if (GenreID != null && !string.IsNullOrWhiteSpace(Title))
-            {
-                albums = _context.Albums.Where(a => a.GenreID == GenreID).Where(a => a.Title.Contains(Title)).OrderBy(a => a.Title);
-            }
-            else if (ArtistID != null && !string.IsNullOrWhiteSpace(Title))
-            {
-                albums = _context.Albums.Where(a => a.ArtistID == ArtistID).Where(a => a.Title.Contains(Title)).OrderBy(a => a.Title);
-            }
-            else if (GenreID != null)
-            {
-                albums = _context.Albums.Where(a => a.GenreID == GenreID).OrderBy(a => a.Title);
-            }
-            else if (ArtistID != null)
-            {
-                albums = _context.Albums.Where(a => a.ArtistID == ArtistID).OrderBy(a => a.Title);
-            }
-            else if (!string.IsNullOrWhiteSpace(Title))
-            {
-                albums = _context.Albums.Where(a => a.Title.Contains(Title)).OrderBy(a => a.Title);
-            }
-            else
-            {
-                albums = _context.Albums.OrderBy(a => a.Title);
-            }
+            var albums = _context.Albums
+               .Where(a => (GenreID == 0 || GenreID == null) || a.GenreID == GenreID)
+               .Where(a => (ArtistID == 0 || ArtistID == null) || a.ArtistID == ArtistID)
+               .Where(a => Title == null || a.Title.Contains(Title))
+               .OrderBy(a => a.Title);
 
             var listAlbumsViewModel = new ListAlbumsViewModel();
             listAlbumsViewModel.Albums = await albums.ToListAsync();
